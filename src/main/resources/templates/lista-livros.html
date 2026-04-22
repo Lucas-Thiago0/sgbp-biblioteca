@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SGBP - Biblioteca UMC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 font-sans text-gray-900">
+
+<div class="max-w-5xl mx-auto py-10 px-4">
+    <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">SGBP - Acervo de Livros</h1>
+        <a href="/livros/novo" class="bg-black text-white px-6 py-2 rounded-lg hover:bg-gray-800 transition shadow-md">
+            + Novo Livro
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-gray-50 border-b border-gray-100">
+            <tr>
+                <th class="px-6 py-4 font-semibold text-gray-600">Título</th>
+                <th class="px-6 py-4 font-semibold text-gray-600">Autor</th>
+                <th class="px-6 py-4 font-semibold text-gray-600">Status</th>
+                <th class="px-6 py-4 font-semibold text-gray-600 text-center">Ações</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+            <tr th:each="livro : ${livros}" class="hover:bg-gray-50 transition">
+                <td class="px-6 py-4 font-medium text-gray-800" th:text="${livro.titulo}"></td>
+                <td class="px-6 py-4 text-gray-600" th:text="${livro.autor}"></td>
+                <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full text-xs font-semibold"
+                                  th:classappend="${livro.disponivel ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}"
+                                  th:text="${livro.disponivel ? 'Disponível' : 'Emprestado'}">
+                            </span>
+                </td>
+                <td class="px-6 py-4 text-center space-x-4">
+                    <a th:href="@{/livros/editar/{id}(id=${livro.id})}" class="text-blue-600 hover:underline">Editar</a>
+                    <a th:href="@{/livros/excluir/{id}(id=${livro.id})}"
+                       class="text-red-600 hover:underline"
+                       onclick="return confirm('Gostaria de deletar?')">Excluir</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div th:if="${#lists.isEmpty(livros)}" class="p-10 text-center text-gray-400">
+            Ainda não tem nada aqui. Comece cadastrando um livro!
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
