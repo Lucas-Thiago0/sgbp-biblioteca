@@ -4,18 +4,19 @@
     <meta charset="UTF-8">
     <title>SGBP - Gestão de Acervo</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-[#f8fafc] flex h-screen overflow-hidden font-['Inter']">
+<body class="bg-[#f8fafc] flex h-screen overflow-hidden" style="font-family: 'Inter', sans-serif;">
 
 <aside class="w-64 bg-[#14b8a6] text-white flex flex-col shrink-0">
     <div class="p-6 text-2xl font-bold tracking-tighter border-b border-white/10">SGBP</div>
     <nav class="flex-1 p-4 space-y-1 mt-4">
-        <a href="/dashboard" class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">📊 Painel Geral</a>
-        <a href="#" class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">👥 Usuários</a>
-        <a href="/livros" class="block px-4 py-2 bg-white text-[#14b8a6] font-semibold rounded-lg shadow-sm">📚 Acervo</a>
-        <a href="#" class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">🤝 Empréstimos</a>
-        <a href="#" class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">📅 Reservas</a>
-        <a href="#" class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">🎧 Atendimento</a>
+        <a href="/dashboard"   class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">📊 Painel Geral</a>
+        <a href="/usuarios"    class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">👥 Usuários</a>
+        <a href="/livros"      class="block px-4 py-2 bg-white text-[#14b8a6] font-semibold rounded-lg shadow-sm">📚 Acervo</a>
+        <a href="/emprestimos" class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">🤝 Empréstimos</a>
+        <a href="/reservas"    class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">📅 Reservas</a>
+        <a href="/atendimento" class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">🎧 Atendimento</a>
     </nav>
 </aside>
 
@@ -65,6 +66,13 @@
                     <td class="px-6 py-4 text-center space-x-2">
                         <a th:href="@{/livros/editar/{id}(id=${livro.id})}" class="text-slate-300 hover:text-black">✏️</a>
                         <a th:href="@{/livros/excluir/{id}(id=${livro.id})}" class="text-slate-300 hover:text-red-500">🗑️</a>
+                    </td>
+                </tr>
+                <tr th:if="${livros == null or livros.isEmpty()}">
+                    <td colspan="9" class="px-6 py-16 text-center text-slate-400">
+                        <div class="text-4xl mb-3">📚</div>
+                        <div class="font-semibold text-slate-500">Nenhum livro cadastrado</div>
+                        <a href="/livros/novo" class="text-xs text-[#14b8a6] font-semibold mt-1 inline-block hover:underline">Adicionar primeiro livro →</a>
                     </td>
                 </tr>
                 </tbody>
