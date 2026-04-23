@@ -2,38 +2,162 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>SGBP - Gestão de Reservas</title>
+    <title>SGBP - Reservas</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-[#f8fafc] flex h-screen font-['Inter']">
-<main class="flex-1 overflow-y-auto p-8">
-    <header class="flex justify-between items-start mb-8">
+<body class="bg-[#f8fafc] flex h-screen overflow-hidden" style="font-family: 'Inter', sans-serif;">
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="w-64 bg-[#14b8a6] text-white flex flex-col shrink-0">
+    <div class="p-6 text-2xl font-bold tracking-tighter border-b border-white/10">SGBP</div>
+    <nav class="flex-1 p-4 space-y-1 mt-4">
+        <a href="/dashboard"   class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">📊 Painel Geral</a>
+        <a href="/usuarios"    class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">👥 Usuários</a>
+        <a href="/livros"      class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">📚 Acervo</a>
+        <a href="/emprestimos" class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">🤝 Empréstimos</a>
+        <a href="/reservas"    class="block px-4 py-2 bg-white text-[#14b8a6] font-semibold rounded-lg shadow-sm">📅 Reservas</a>
+        <a href="/atendimento" class="block px-4 py-2 hover:bg-white/10 rounded-lg text-white/80">🎧 Atendimento</a>
+    </nav>
+</aside>
+
+<!-- ===== CONTEÚDO PRINCIPAL ===== -->
+<main class="flex-1 flex flex-col overflow-y-auto">
+
+    <!-- Header -->
+    <header class="p-8 flex justify-between items-start">
         <div>
-            <h1 class="text-3xl font-bold text-slate-800">Gestão de Reservas</h1>
-            <p class="text-slate-500">Gerenciar reservas e fila de espera de livros</p>
+            <h1 class="text-3xl font-bold text-slate-800">Reservas</h1>
+            <p class="text-slate-500 mt-1">Gerencie as reservas de livros da biblioteca</p>
         </div>
-        <button class="bg-[#14b8a6] text-white px-6 py-2 rounded-lg font-bold shadow-md">+ Nova Reserva</button>
+        <button onclick="document.getElementById('modal-nova-reserva').classList.remove('hidden')"
+                class="bg-[#14b8a6] text-white px-6 py-2.5 rounded-lg font-bold shadow-md hover:bg-[#0d9488] transition">
+            + Nova Reserva
+        </button>
     </header>
 
-    <div class="grid grid-cols-3 gap-6 mb-8">
-        <div class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm">
-            <p class="text-[10px] font-bold text-slate-400 uppercase">Reservas Pendentes</p>
-            <h2 class="text-2xl font-bold">3</h2>
+    <!-- Cards de Estatísticas -->
+    <div class="px-8 grid grid-cols-3 gap-5 mb-6">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <p class="text-xs font-bold uppercase text-slate-400 tracking-wide">Total de Reservas</p>
+            <p class="text-3xl font-bold text-slate-800 mt-1" th:text="${totalReservas != null ? totalReservas : 0}">0</p>
+            <p class="text-xs text-slate-400 mt-1">no sistema</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <p class="text-xs font-bold uppercase text-slate-400 tracking-wide">Ativas</p>
+            <p class="text-3xl font-bold text-emerald-500 mt-1" th:text="${reservasAtivas != null ? reservasAtivas : 0}">0</p>
+            <p class="text-xs text-slate-400 mt-1">aguardando retirada</p>
+        </div>
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+            <p class="text-xs font-bold uppercase text-slate-400 tracking-wide">Expiradas</p>
+            <p class="text-3xl font-bold text-orange-500 mt-1" th:text="${reservasExpiradas != null ? reservasExpiradas : 0}">0</p>
+            <p class="text-xs text-slate-400 mt-1">prazo vencido</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-        <h3 class="font-bold text-slate-700 mb-6 italic">Fila de Espera por Livro</h3>
-        <div class="space-y-6">
-            <div class="border-l-4 border-[#14b8a6] pl-4">
-                <p class="font-bold text-sm text-slate-800">1984 (George Orwell)</p>
-                <div class="flex items-center gap-3 mt-2">
-                    <div class="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-xs">RS</div>
-                    <span class="text-xs text-slate-600">Ricardo Sousa - Reservado em 22/03/2026</span>
-                </div>
-            </div>
+    <!-- Tabela de Reservas -->
+    <div class="px-8 pb-8">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-x-auto">
+            <table class="w-full text-left">
+                <thead class="bg-slate-50 text-[10px] uppercase text-slate-400 font-bold border-b border-slate-100">
+                <tr>
+                    <th class="px-6 py-4">Usuário</th>
+                    <th class="px-6 py-4">Livro Reservado</th>
+                    <th class="px-6 py-4">Data da Reserva</th>
+                    <th class="px-6 py-4">Validade</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4 text-center">Ações</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50 text-xs" id="tabela-reservas">
+
+                <!-- Dados reais vindos do backend (quando Reserva model existir) -->
+                <tr th:each="reserva : ${reservas}" class="hover:bg-slate-50/50 transition">
+                    <td class="px-6 py-4">
+                        <div class="font-semibold text-slate-700" th:text="${reserva.nomeUsuario}">—</div>
+                        <div class="text-slate-400" th:text="${reserva.emailUsuario}">—</div>
+                    </td>
+                    <td class="px-6 py-4 font-medium text-slate-700" th:text="${reserva.tituloLivro}">—</td>
+                    <td class="px-6 py-4 text-slate-500" th:text="${#temporals.format(reserva.dataReserva,'dd/MM/yyyy')}">—</td>
+                    <td class="px-6 py-4 text-slate-500" th:text="${#temporals.format(reserva.dataValidade,'dd/MM/yyyy')}">—</td>
+                    <td class="px-6 py-4">
+                            <span class="px-2 py-1 rounded text-[10px] font-bold border"
+                                  th:classappend="${reserva.status == 'ATIVA'} ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : (${reserva.status == 'EXPIRADA'} ? 'bg-orange-50 text-orange-600 border-orange-100' : 'bg-slate-50 text-slate-500 border-slate-100')"
+                                  th:text="${reserva.status}">
+                            </span>
+                    </td>
+                    <td class="px-6 py-4 text-center space-x-2">
+                        <a th:href="@{/reservas/confirmar/{id}(id=${reserva.id})}"
+                           class="text-emerald-400 hover:text-emerald-600 text-xs font-semibold">✓ Confirmar</a>
+                        <a th:href="@{/reservas/cancelar/{id}(id=${reserva.id})}"
+                           class="text-red-300 hover:text-red-500 text-xs font-semibold ml-2">✕ Cancelar</a>
+                    </td>
+                </tr>
+
+                <!-- Estado vazio: exibido quando não há reservas cadastradas -->
+                <tr th:if="${reservas == null or reservas.isEmpty()}">
+                    <td colspan="6" class="px-6 py-16 text-center text-slate-400">
+                        <div class="text-4xl mb-3">📅</div>
+                        <div class="font-semibold text-slate-500">Nenhuma reserva cadastrada</div>
+                        <div class="text-xs mt-1">Clique em "Nova Reserva" para começar</div>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
         </div>
     </div>
 </main>
+
+<!-- ===== MODAL: Nova Reserva ===== -->
+<div id="modal-nova-reserva" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 mx-4">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-slate-800">Nova Reserva</h2>
+            <button onclick="document.getElementById('modal-nova-reserva').classList.add('hidden')"
+                    class="text-slate-400 hover:text-slate-700 text-xl font-bold">✕</button>
+        </div>
+
+        <form th:action="@{/reservas}" method="post" class="space-y-4">
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nome do Usuário *</label>
+                <input type="text" name="nomeUsuario" placeholder="Nome completo do aluno"
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#14b8a6] outline-none transition text-sm" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1.5">E-mail *</label>
+                <input type="email" name="emailUsuario" placeholder="aluno@umc.br"
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#14b8a6] outline-none transition text-sm" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Livro (título ou ISBN) *</label>
+                <input type="text" name="tituloLivro" placeholder="Ex: Engenharia de Software Moderna"
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#14b8a6] outline-none transition text-sm" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-semibold text-slate-700 mb-1.5">Validade da Reserva *</label>
+                <input type="date" name="dataValidade"
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-[#14b8a6] outline-none transition text-sm" required>
+            </div>
+
+            <div class="pt-4 flex justify-end gap-3 border-t border-slate-100">
+                <button type="button"
+                        onclick="document.getElementById('modal-nova-reserva').classList.add('hidden')"
+                        class="text-slate-500 hover:text-slate-800 text-sm font-medium transition">
+                    Cancelar
+                </button>
+                <button type="submit"
+                        class="bg-[#14b8a6] hover:bg-[#0d9488] text-white px-6 py-2.5 rounded-xl font-bold text-sm shadow-md transition">
+                    Confirmar Reserva
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 </body>
 </html>
