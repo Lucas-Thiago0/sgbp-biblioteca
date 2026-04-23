@@ -9,23 +9,18 @@ import java.util.Optional;
 
 @Service
 public class LivroService {
-
     @Autowired
     private LivroRepository repository;
 
-    public List<Livro> listarTodos() {
-        return repository.findAll();
-    }
+    public List<Livro> listarTodos() { return repository.findAll(); }
+    public void salvar(Livro livro) { repository.save(livro); }
+    public Optional<Livro> buscarPorId(String id) { return repository.findById(id); }
+    public void excluir(String id) { repository.deleteById(id); }
 
-    public void salvar(Livro livro) {
-        repository.save(livro);
-    }
-
-    public Optional<Livro> buscarPorId(String id) {
-        return repository.findById(id);
-    }
-
-    public void excluir(String id) {
-        repository.deleteById(id);
+    public void alternarStatus(String id) {
+        buscarPorId(id).ifPresent(livro -> {
+            livro.setDisponivel(!livro.isDisponivel());
+            repository.save(livro);
+        });
     }
 }
