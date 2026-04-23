@@ -76,7 +76,7 @@ mvn spring-boot:run
 ### 4. Acesse no navegador
 
 ```
-http://localhost:8080
+http://localhost:8082
 ```
 
 O sistema redirecionará automaticamente para o **Painel Geral**.
