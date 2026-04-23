@@ -60,12 +60,7 @@ cd sgbp-biblioteca
 
 ### 2. Configure a conexão com o MongoDB Atlas
 
-Abra o arquivo `src/main/resources/application.properties` e substitua a string de conexão:
-
-```properties
-spring.data.mongodb.uri=mongodb+srv://SEU_USUARIO:SUA_SENHA@cluster0.xxxxx.mongodb.net/sgbp?retryWrites=true&w=majority
-spring.data.mongodb.database=sgbp
-spring.application.name=sgbp-biblioteca
+Configure sua string de conexão no MongoDB no arquivo application.properties
 ```
 
 ### 3. Execute a aplicação
